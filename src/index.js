@@ -6,9 +6,11 @@ export function analyze(arr, start, end) {
 
   const dirs = [[-1, 0], [0, -1], [1, 0], [0, 1]]
 
+  // single pass over nested array
   for (let r=1; r< arr.length-1; r++) {
     let row = arr[r]
     for (let c=1;c<row.length-1; c++) {
+
       // wall -> ignore
       if (row[c]) continue
 
@@ -49,7 +51,7 @@ function findRoutes(a, r, c, o, nodes, routes) {
   let _cell = a[r][c]
 
   let dist = 1
-  let dirNodeI
+  // find nearest wall in o(rientation) 
   while (_cell === false) {
     let _row = a[r + o[0] * dist]
 
@@ -85,23 +87,23 @@ function findRoutes(a, r, c, o, nodes, routes) {
   const ch = Math.max(c, cn)
 
 
-  const connections = nodes.reduce((a, node, i) => {
+  const connections = nodes.forEach((node, i) => {
     const rd = Math.abs(node.r - r) 
     const cd = Math.abs(node.c - c)
     const d = rd || cd
     if (
+      // within dist to wall
       node.r >= rl && node.r <= rh &&
       node.c >= cl && node.c <= ch &&
+      // not our current node
       rd ^ cd
     ) {
+      // push bi-directional links
       const f = {f: i, t: nodes.length, d}
       const t = {f: nodes.length, t: i, d}
       routes.push(f, t)
-      a.push({f, t, d})
-      return a
     }
-    return a
-  }, [])
+  })
 }
 
 export function findPaths({nodes: _nodes, routes}) {
@@ -111,7 +113,7 @@ export function findPaths({nodes: _nodes, routes}) {
   let shortestDist = Infinity
   function recurse (nodes, path = []) {
     const last = path[path.length - 1].node
-    const atEnd = [last.r, last.c].join('') === [exit.r, exit.c].join('')
+    const atEnd = last.equals(exit)
 
     if (atEnd) {
       // check for maze end
@@ -136,16 +138,14 @@ export function findPaths({nodes: _nodes, routes}) {
     const connections = routes.filter(rte => {
       // no backtracking
       let pi = path.find(step => {
-        if (step.node.r === _nodes[rte.t].r 
-            && step.node.c === _nodes[rte.t].c) {
+        if (step.node.equals(_nodes[rte.t])) {
           return true
         }
       })
 
       if (
         !pi 
-        && _nodes[rte.f].r === cur.r 
-        && _nodes[rte.f].c === cur.c
+        && cur.equals(_nodes[rte.f])
       ) {
         return true
       }

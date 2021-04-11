@@ -75,15 +75,34 @@ export function printPath(str, path) {
     let rd = path[i+1].node.r - r
 
     let cd = path[i+1].node.c - c
-
+    let prev //= {r: path[0].node.r, c: path[0].node.c}
     while (Math.abs(rd) > 0 || Math.abs(cd) > 0) {
-      a[r + rd][c + cd] = '.'
+      const cur = {r: r+rd, c: c+cd}
+      const char = pathChar(prev, cur)
+      a[r + rd][c + cd] = char
+      prev = cur
+
       rd -= (rd ? 1 * Math.sign(rd) : 0) 
       cd -= (cd ? 1 * Math.sign(cd) : 0) 
     }
   })
 
   a.forEach(r => console.log(r.join('')))
-  const dist =path.reduce((a,v) => a+=v.dist, 0)
-  console.log('dist', dist, path)
+  console.log('dist', path.dist, path)
+}
+
+function pathChar(prev, cur) {
+  let char = '.'
+  if (!prev) return char
+
+  if (prev.r < cur.r) {
+    char = '^' 
+  } else if (prev.r > cur.r) {
+    char = 'v'
+  } else if (prev.c < cur.c) {
+    char = '<'
+  } else if (prev.c > cur.c) {
+    char = '>'   
+  }
+  return char
 }
