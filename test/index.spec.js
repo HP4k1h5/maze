@@ -1,20 +1,27 @@
-import {makeMaze, mazeStrToArr, printNodes, printPath} from '../src/util/print.js'
-import {analyze, findPaths } from '../src/index.js'
-const mazes = [`
+import {
+  makeMaze,
+  mazeStrToArr,
+  printNodes,
+  printPath,
+} from '../src/util/print.js'
+import { analyze, findPaths } from '../src/index.js'
+const mazes = [
+  `
 @@@@@@
 @    @
 @ @@ @
 @ @@ @
 @s@@e@`,
 
-`@@@@@@
+  `@@@@@@
 @    @
 @ @@ @
 @ @@ @
 @    @
 @@@@ @
 @  @ @
-@es@@@`,`
+@es@@@`,
+  `
 
 @@@@@@@@@@@@
 @          @
@@ -28,19 +35,19 @@ const mazes = [`
 @       @  @
 @@@@s@@@@@e@`,
 
-makeMaze(10, 10, .3, ['#', ' '])
+  makeMaze(10, 10, 0.4, ['#', ' ']),
 ]
-
-mazes.slice(2, 3).forEach(maze_str => {
+printPath(mazes.slice(-1)[0], [])
+mazes.slice(0, 0).forEach(maze_str => {
   console.log(maze_str, '\n')
-  const {maze, start, end} = mazeStrToArr(maze_str)
+  const { maze, start, end } = mazeStrToArr(maze_str)
 
-  const {nodes, routes} = analyze(maze, start, end)
+  const { nodes, routes } = analyze(maze, start, end)
   printNodes(maze_str, nodes)
 
-  const paths = findPaths({nodes, routes})
+  const paths = findPaths({ nodes, routes })
 
-  paths.slice().forEach(path => {
+  paths.slice(-3).forEach(path => {
     printPath(maze_str, path)
   })
   console.log('path count', paths.length)

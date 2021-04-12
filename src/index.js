@@ -1,16 +1,20 @@
-import {Node} from './lib/index.js'
+import { Node } from './lib/index.js'
 
 export function analyze(arr, start, end) {
   const nodes = [new Node(start[0], start[1])]
   const routes = []
 
-  const dirs = [[-1, 0], [0, -1], [1, 0], [0, 1]]
+  const dirs = [
+    [-1, 0],
+    [0, -1],
+    [1, 0],
+    [0, 1],
+  ]
 
   // single pass over nested array
-  for (let r=1; r< arr.length-1; r++) {
+  for (let r = 1; r < arr.length - 1; r++) {
     let row = arr[r]
-    for (let c=1;c<row.length-1; c++) {
-
+    for (let c = 1; c < row.length - 1; c++) {
       // wall -> ignore
       if (row[c]) continue
 
@@ -43,7 +47,7 @@ export function analyze(arr, start, end) {
   // add end node
   nodes.push(new Node(end[0], end[1]))
 
-  return {nodes, routes}
+  return { nodes, routes }
 }
 
 function findRoutes(a, r, c, o, nodes, routes) {
@@ -51,7 +55,7 @@ function findRoutes(a, r, c, o, nodes, routes) {
   let _cell = a[r][c]
 
   let dist = 1
-  // find nearest wall in o(rientation) 
+  // find nearest wall in o(rientation)
   while (_cell === false) {
     let _row = a[r + o[0] * dist]
 
@@ -61,7 +65,7 @@ function findRoutes(a, r, c, o, nodes, routes) {
     _cell = _row[c + o[1] * dist]
     if (_cell === undefined) break
 
-    // found wall 
+    // found wall
     if (_cell) {
       // previous cell was longest connection
       dist--
@@ -86,40 +90,41 @@ function findRoutes(a, r, c, o, nodes, routes) {
   const cl = Math.min(c, cn)
   const ch = Math.max(c, cn)
 
-
-  const connections = nodes.forEach((node, i) => {
-    const rd = Math.abs(node.r - r) 
+  nodes.forEach((node, i) => {
+    const rd = Math.abs(node.r - r)
     const cd = Math.abs(node.c - c)
     const d = rd || cd
     if (
       // within dist to wall
-      node.r >= rl && node.r <= rh &&
-      node.c >= cl && node.c <= ch &&
+      node.r >= rl &&
+      node.r <= rh &&
+      node.c >= cl &&
+      node.c <= ch &&
       // not our current node
       rd ^ cd
     ) {
       // push bi-directional links
-      const f = {f: i, t: nodes.length, d}
-      const t = {f: nodes.length, t: i, d}
+      const f = { f: i, t: nodes.length, d }
+      const t = { f: nodes.length, t: i, d }
       routes.push(f, t)
     }
   })
 }
 
-export function findPaths({nodes: _nodes, routes}) {
-  const exit = _nodes[_nodes.length-1]
+export function findPaths({ nodes: _nodes, routes }) {
+  const exit = _nodes[_nodes.length - 1]
 
   const paths = []
   let shortestDist = Infinity
-  function recurse (nodes, path = []) {
+  function recurse(nodes, path = []) {
     const last = path[path.length - 1].node
     const atEnd = last.equals(exit)
 
     if (atEnd) {
       // check for maze end
-      path.dist = path.reduce((a,v) => a+=v.dist, 0) 
+      path.dist = path.reduce((a, v) => (a += v.dist), 0)
       if (path.dist < shortestDist * 1.5) {
-        if (path.dist < shortestDist ){
+        if (path.dist < shortestDist) {
           shortestDist = path.dist
         }
 
@@ -127,13 +132,12 @@ export function findPaths({nodes: _nodes, routes}) {
         console.log('path count', paths.length)
       }
       return
-
     } else if (nodes.length < 2) {
       // end of path
       return
     }
 
-    let cur = path[path.length-1].node
+    let cur = path[path.length - 1].node
 
     const connections = routes.filter(rte => {
       // no backtracking
@@ -143,21 +147,17 @@ export function findPaths({nodes: _nodes, routes}) {
         }
       })
 
-      if (
-        !pi 
-        && cur.equals(_nodes[rte.f])
-      ) {
+      if (!pi && cur.equals(_nodes[rte.f])) {
         return true
       }
     })
 
     connections.forEach(con => {
-      const p = [...path, {dist: con.d, node: _nodes[con.t]}]
-      recurse(nodes.slice(1,), p)
+      const p = [...path, { dist: con.d, node: _nodes[con.t] }]
+      recurse(nodes.slice(1), p)
     })
-  } 
+  }
 
-  recurse(_nodes.slice(), [{dist: 0, node: _nodes[0]}]) 
-  return paths.sort((a,b) => b.dist - a.dist)
+  recurse(_nodes.slice(), [{ dist: 0, node: _nodes[0] }])
+  return paths.sort((a, b) => b.dist - a.dist)
 }
-

@@ -1,15 +1,15 @@
 export function makeMaze(h, w, density, chars) {
   const wall = chars[0].repeat(w)
   const maze = [wall]
-  for (let _h = h-2; _h>0; _h--) {
+  for (let _h = h - 2; _h > 0; _h--) {
     let row = chars[0]
-    for (let _w = w-2; _w>0; _w--){
-      const c = Math.random() < density ? chars[0]: chars[1] 
+    for (let _w = w - 2; _w > 0; _w--) {
+      const c = Math.random() < density ? chars[0] : chars[1]
       row += c
     }
     row += chars[0]
     maze.push(row)
-  } 
+  }
 
   maze.push(wall)
 
@@ -19,7 +19,7 @@ export function makeMaze(h, w, density, chars) {
     end = [ran(0, h), ran(0, w), 'e']
   }
 
-  ;[start,end].forEach(p => {
+  ;[start, end].forEach(p => {
     const replace = maze[p[0]].split('')
     replace.splice(p[1], 1, p[2])
     maze[p[0]] = replace.join('')
@@ -29,33 +29,37 @@ export function makeMaze(h, w, density, chars) {
 }
 
 function ran(min, max) {
-  return Math.floor(Math.random()*max) + min
+  return Math.floor(Math.random() * max) + min
 }
 
-export function mazeStrToArr (str) {
+export function mazeStrToArr(str) {
   let start, end
 
-  const maze = str.trim().split('\n')
-    .map((row, ri) => { 
-      return row.split('')
-        .map((cell, ci) => {
-          if (cell == 's') {
-            start = [ri, ci]
-            cell = ' '
-          }else if (cell == 'e') {
-            end = [ri, ci]
-            cell = ' '
-          }
-          return cell == ' ' ? false : true
-        })
+  const maze = str
+    .trim()
+    .split('\n')
+    .map((row, ri) => {
+      return row.split('').map((cell, ci) => {
+        if (cell == 's') {
+          start = [ri, ci]
+          cell = ' '
+        } else if (cell == 'e') {
+          end = [ri, ci]
+          cell = ' '
+        }
+        return cell == ' ' ? false : true
+      })
     })
 
-  if (! (start && end)) throw 'need start (s) and end (e) points'
-  return {maze, start, end}
+  if (!(start && end)) throw 'need start (s) and end (e) points'
+  return { maze, start, end }
 }
 
 export function printNodes(str, nodes) {
-  const a = str.trim().split('\n').map(r => r.split(''))
+  const a = str
+    .trim()
+    .split('\n')
+    .map(r => r.split(''))
   nodes.forEach((node, i) => {
     a[node.r][node.c] = i
   })
@@ -66,24 +70,27 @@ export function printNodes(str, nodes) {
 export function printPath(str, path) {
   if (!path) return console.log('no paths')
 
-  const a = str.trim().split('\n').map(r => r.split(''))
+  const a = str
+    .trim()
+    .split('\n')
+    .map(r => r.split(''))
 
-  path.slice(0,-1).forEach((step, i) => {
+  path.slice(0, -1).forEach((step, i) => {
     let r = step.node.r
     let c = step.node.c
 
-    let rd = path[i+1].node.r - r
+    let rd = path[i + 1].node.r - r
 
-    let cd = path[i+1].node.c - c
+    let cd = path[i + 1].node.c - c
     let prev //= {r: path[0].node.r, c: path[0].node.c}
     while (Math.abs(rd) > 0 || Math.abs(cd) > 0) {
-      const cur = {r: r+rd, c: c+cd}
+      const cur = { r: r + rd, c: c + cd }
       const char = pathChar(prev, cur)
       a[r + rd][c + cd] = char
       prev = cur
 
-      rd -= (rd ? 1 * Math.sign(rd) : 0) 
-      cd -= (cd ? 1 * Math.sign(cd) : 0) 
+      rd -= rd ? 1 * Math.sign(rd) : 0
+      cd -= cd ? 1 * Math.sign(cd) : 0
     }
   })
 
@@ -96,13 +103,13 @@ function pathChar(prev, cur) {
   if (!prev) return char
 
   if (prev.r < cur.r) {
-    char = '^' 
+    char = '^'
   } else if (prev.r > cur.r) {
     char = 'v'
   } else if (prev.c < cur.c) {
     char = '<'
   } else if (prev.c > cur.c) {
-    char = '>'   
+    char = '>'
   }
   return char
 }
